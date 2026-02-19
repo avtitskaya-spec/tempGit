@@ -26,7 +26,7 @@ export class ProfilePage {
         return await this.articleTitles.first().textContent();
     }
     getFavoriteArticleByTitle(title) {
-        return this.page.locator('.article-preview h1', { hasText: title });
+        return this.articleTitles.filter({ hasText: title });
     }
 
 }

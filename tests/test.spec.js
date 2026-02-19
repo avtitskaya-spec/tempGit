@@ -4,6 +4,9 @@ import { LoginPage } from '../src/pages/login.page';
 import { ArticlePage } from '../src/pages/newArticle.page';
 import { MainPage } from '../src/pages/main.page';
 import { ProfilePage } from '../src/pages/profile.page';
+import { EditArticlePage } from '../src/pages/editArticle.page'
+import { DeleteArticlePage } from '../src/pages/deleteArticle.page'
+import { CommentArticlePage } from '../src/pages/commentArticle.page'
 
 const user = {
     email: 'test_av@mail.ru',
@@ -39,36 +42,46 @@ test('1.Пользователь может написать статью', asyn
     const articlePage = new ArticlePage(page);
     await articlePage.goToArticle();
     await articlePage.createArticle(newArticle.title, newArticle.description, newArticle.text, newArticle.tags);
-    await expect(articlePage.getPublishedArticleTitle()).toContainText(newArticle.title);});
+    await expect(articlePage.getPublishedArticleTitle()).toContainText(newArticle.title);
+
+});
 
 test('2.Пользователь может удалить статью', async ({page}) => {
     const articlePage = new ArticlePage(page);
+    const deleteArticle = new DeleteArticlePage(page);
     await articlePage.goToArticle();
     await articlePage.createArticle(newArticle.title, newArticle.description, newArticle.text, newArticle.tags);
-    await articlePage.deleteArticle();
+    await deleteArticle.deleteArticle();
+    await expect(page.locator(`text=${newArticle.title}`)).toHaveCount(0);
 
 });
 
 test('3.Пользователь может редактировать статью', async ({page}) => {
     const articlePage = new ArticlePage(page);
+    const editArticle = new EditArticlePage(page);
     await articlePage.goToArticle();
     await articlePage.createArticle(newArticle.title, newArticle.description, newArticle.text, newArticle.tags);
     console.log(newArticle.title);
-    await articlePage.editArticle(editedArticle.title, editedArticle.description, editedArticle.text, editedArticle.tags);
+    await editArticle.editArticle(editedArticle.title, editedArticle.description, editedArticle.text, editedArticle.tags);
     console.log(editedArticle.title);
     await expect(articlePage.getPublishedArticleTitle()).toContainText(editedArticle.title);
 });
 
 test('4.Пользователь может написать комментарий к статье', async ({page}) => {
     const articlePage = new ArticlePage(page);
+    const commentArticle = new CommentArticlePage(page);
     let commentText = faker.lorem.sentence();
     await articlePage.goToArticle();
     await articlePage.createArticle(newArticle.title, newArticle.description, newArticle.text, newArticle.tags);
-    await articlePage.addComment(commentText);
+    await commentArticle.addComment(commentText);
     await expect(articlePage.commentText).toContainText(commentText);
 });
 
 test('5.Пользователь может добавить статью в избранное', async ({page}) => {
+    const articlePage = new ArticlePage(page);
+    await articlePage.goToArticle();
+    await articlePage.createArticle(newArticle.title, newArticle.description, newArticle.text, newArticle.tags);
+    await expect(articlePage.getPublishedArticleTitle()).toContainText(newArticle.title);
     const profilePage = new ProfilePage(page);
     await profilePage.goToProfile(); 
     const articleTitle = await profilePage.getFirstArticleTitleText();
